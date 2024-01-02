@@ -1,1 +1,1 @@
-This is the demo application of text2sql.
+This is the demo application of text to sql.
