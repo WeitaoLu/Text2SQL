@@ -51,37 +51,32 @@ def init(model_name,db_name):
 
     db = SQLDatabase.from_uri(f"sqlite:///./{db_name}.db", sample_rows_in_table_info=0)
     return model,db
-
-def get_schema(db):
-    print("getting schema",db.get_table_info())
-    return db.get_table_info()
-
-def run_query(db,query):
-    print("running query\n", query)
-    try:
-        result = db.run(query)
-        if result:
-            print("successfully run query")
-            return result
-        else:
-            return "No results found."
-    except Exception as e:
-        error_message = str(e)
-        print("An error occurred!!" + error_message)
-        print("1 to exit, 2 to try auto fix using another model,THIS IS NOT FINISHED NOW, I WILL FIX LATER!")#change to input later 
-        exit()
-        if input == 1:
-            return "An error occurred: " + error_message
-        else:
-            return "An error occurred: " + error_message
-
-
 def text2sql(model_name,db_name,question):
     model,db = init(model_name,db_name)
     # Prompts
+    # 
+    def get_schema(_):
+        return db.get_table_info()
 
-    ## To SQL   
-    print("db is",db)
+    def run_query(query):
+        print("running query\n", query)
+        try:
+            result = db.run(query)
+            if result:
+                print("successfully run query")
+                return result
+            else:
+                return "No results found."
+        except Exception as e:
+            error_message = str(e)
+            print("An error occurred!!" + error_message)
+            print("1 to exit, 2 to try auto fix using another model,THIS IS NOT FINISHED NOW, I WILL FIX LATER!")#change to input later 
+            exit()
+            if input == 1:
+                return "An error occurred: " + error_message
+            else:
+                return "An error occurred: " + error_message
+
     template = """Based on the table schema below, write a SQLite query that would answer the user's question:
     {schema}
 
@@ -90,7 +85,7 @@ def text2sql(model_name,db_name,question):
     prompt = ChatPromptTemplate.from_template(template)
 
     sql_response = (
-        RunnablePassthrough.assign(schema=get_schema(db))
+        RunnablePassthrough.assign(schema=get_schema)
         | prompt
         | model.bind(stop=["\nSQLResult:"])
         | StrOutputParser()
@@ -110,8 +105,8 @@ def text2sql(model_name,db_name,question):
 
     full_chain = (
         RunnablePassthrough.assign(query=sql_response).assign(
-            schema=get_schema(db),
-            response=lambda x: run_query(db,x["query"]),
+            schema=get_schema,
+            response=lambda x: run_query(x["query"]),
         )
         | prompt_response
         | model
@@ -134,4 +129,5 @@ def sql_agent(question):
 )
 # sample to execute the model 
 question = "What are the top 3 best-selling artists from the database?"
-print(sql_agent(question))
+# print(sql_agent(question))
+print(text2sql("gpt3","Chinook",question))
