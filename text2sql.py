@@ -51,6 +51,72 @@ def init(model_name,db_name):
 
     db = SQLDatabase.from_uri(f"sqlite:///./{db_name}.db", sample_rows_in_table_info=0)
     return model,db
+
+def text2sql(model_name,db_name,question):
+    model,db = init(model_name,db_name)
+    # Using Closure desgin pattern to pass the db to the model
+    def get_schema(_):
+        return db.get_table_info()
+    template = """Based on the table schema below, write a SQLite query that would answer the user's question:
+    {schema}
+
+    Question: {question}
+    SQL Query:"""
+    prompt = ChatPromptTemplate.from_template(template)
+    sql_response = (
+        RunnablePassthrough.assign(schema=get_schema)
+        | prompt
+        | model.bind(stop=["\nSQLResult:"])
+        | StrOutputParser()
+    )
+    return sql_response.invoke({"question": question})  
+
+def execute_sql(query,db_name):
+    db = SQLDatabase.from_uri(f"sqlite:///./{db_name}.db", sample_rows_in_table_info=0)
+    print("running query\n", query)
+    try:
+        result = db.run(query)
+        if result:
+            print("successfully run query")
+            return result
+        else:
+            return "No results found."
+    except Exception as e:
+        error_message = str(e)
+        print("An error occurred!!" + error_message)
+        input("1 to exit, 2 to ask auto agent for help ")#change to input later 
+        if input == 1:
+            return "An error occurred: " + error_message
+        else:
+            return "An error occurred: " + error_message
+
+def sqlresult2text(model_name,db_name,question,sql_query,sql_result):
+    # Using Closure desgin pattern to pass the db to the model
+    model,db = init(model_name,db_name)
+    def get_schema(_):
+        return db.get_table_info()
+    ## To natural language
+    
+    template = """Based on the table schema below, question, sql query, and sql response, write a natural language response:
+    {schema}
+    Question: {question}
+    SQL Query: {query}
+    SQL Response: {response}"""
+
+
+    prompt_response = ChatPromptTemplate.from_template(template)
+
+
+    text_response = (
+        RunnablePassthrough.assign(schema=get_schema)
+        | prompt_response
+        | model
+    )
+
+    # execute the model 
+    return   text_response.invoke({"question": question,"query":sql_query,"response":sql_result})
+
+
 def text2sql_end2end(model_name,db_name,question):
     model,db = init(model_name,db_name)
     # Prompts
@@ -70,8 +136,7 @@ def text2sql_end2end(model_name,db_name,question):
         except Exception as e:
             error_message = str(e)
             print("An error occurred!!" + error_message)
-            print("1 to exit, 2 to try auto fix using another model,THIS IS NOT FINISHED NOW, I WILL FIX LATER!")#change to input later 
-            exit()
+            input("1 to exit, 2 to ask auto agent for help ")#change to input later 
             if input == 1:
                 return "An error occurred: " + error_message
             else:
@@ -129,5 +194,13 @@ def sql_agent(question):
 )
 # sample to execute the model 
 question = "What are the top 3 best-selling artists from the database?"
-# print(sql_agent(question))
-print(text2sql("gpt3","Chinook",question))
+#example of using the model
+# example 1: auto agent
+    # print(sql_agent(question))
+# example 2: end 2 en
+# print(text2sql_end2end("gpt3","Chinook",question))
+# example 3: step by step
+sql= text2sql("gpt3","Chinook",question)
+result = execute_sql(sql,"Chinook")
+text = sqlresult2text("gpt3","Chinook",question,sql,result)
+print(text)
