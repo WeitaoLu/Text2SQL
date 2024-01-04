@@ -51,7 +51,7 @@ def init(model_name,db_name):
 
     db = SQLDatabase.from_uri(f"sqlite:///./{db_name}.db", sample_rows_in_table_info=0)
     return model,db
-def text2sql(model_name,db_name,question):
+def text2sql_end2end(model_name,db_name,question):
     model,db = init(model_name,db_name)
     # Prompts
     # 
