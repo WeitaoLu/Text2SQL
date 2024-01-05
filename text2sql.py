@@ -23,6 +23,12 @@ def read_api_key(file_path):
     with open(file_path, 'r') as file:
         return file.read().strip()
 
+REPLICATE_API_TOKE = read_api_key('../API_Key/REPLICATE_API_TOKEN.txt')
+OPENAI_API_KEY = read_api_key('../API_Key/OPENAI_API_KEY.txt')
+
+os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKE
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+
 def model_select(model_name):
     if model_name == "llama2_chat":
         return ChatOllama(model="llama2:13b-chat")
@@ -37,12 +43,7 @@ def model_select(model_name):
 
 def init(model_name,db_name):
     model = model_select(model_name)
-    REPLICATE_API_TOKE = read_api_key('../API_Key/REPLICATE_API_TOKEN.txt')
-    OPENAI_API_KEY = read_api_key('../API_Key/OPENAI_API_KEY.txt')
 
-    #set the environment variable
-    os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKE
-    os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
     # Replicate API
     replicate_id = "meta/llama-2-13b-chat:f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d"
     llama2_chat_replicate = Replicate(
@@ -188,10 +189,13 @@ question = "What are the top 3 best-selling artists from the database?"
 #example of using the model
 # example 1: auto agent
     # print(sql_agent(question))
-# example 2: end 2 en
+# example 2: end 2 end
 # print(text2sql_end2end("gpt3","Chinook",question))
 # example 3: step by step
 sql= text2sql("gpt3","Chinook",question)
+print('sql:',sql)
 result = execute_sql(sql,"Chinook")
+print('result:',result)
 text = sqlresult2text("gpt3","Chinook",question,sql,result)
 print(text)
+
