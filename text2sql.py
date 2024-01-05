@@ -15,6 +15,7 @@ from langchain.agents.agent_types import AgentType
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_community.llms.openai import OpenAI
 
+SQL_FAIL_MESSAGE = "SQL_ERROR"
 def read_api_key(file_path):
     '''read the api key from the file
     :param file_path: the path of the file
@@ -73,22 +74,16 @@ def text2sql(model_name,db_name,question):
 
 def execute_sql(query,db_name):
     db = SQLDatabase.from_uri(f"sqlite:///./{db_name}.db", sample_rows_in_table_info=0)
-    print("running query\n", query)
     try:
         result = db.run(query)
         if result:
-            print("successfully run query")
             return result
         else:
             return "No results found."
     except Exception as e:
         error_message = str(e)
-        print("An error occurred!!" + error_message)
-        input("1 to exit, 2 to ask auto agent for help ")#change to input later 
-        if input == 1:
-            return "An error occurred: " + error_message
-        else:
-            return "An error occurred: " + error_message
+        print(SQL_FAIL_MESSAGE,error_message)
+        return SQL_FAIL_MESSAGE
 
 def sqlresult2text(model_name,db_name,question,sql_query,sql_result):
     # Using Closure desgin pattern to pass the db to the model
@@ -135,12 +130,8 @@ def text2sql_end2end(model_name,db_name,question):
                 return "No results found."
         except Exception as e:
             error_message = str(e)
-            print("An error occurred!!" + error_message)
-            input("1 to exit, 2 to ask auto agent for help ")#change to input later 
-            if input == 1:
-                return "An error occurred: " + error_message
-            else:
-                return "An error occurred: " + error_message
+            print(SQL_FAIL_MESSAGE)
+            return SQL_FAIL_MESSAGE
 
     template = """Based on the table schema below, write a SQLite query that would answer the user's question:
     {schema}
