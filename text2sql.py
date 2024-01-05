@@ -183,6 +183,33 @@ def sql_agent(question):
     agent_executor.run(
     question
 )
+
+
+def sql_explaination(model_name,db_name,question,sql_query,sql_result):
+    # Using Closure desgin pattern to pass the db to the model
+    model,db = init(model_name,db_name)
+    def get_schema(_):
+        return db.get_table_info()
+    ## To natural language
+    
+    template = """Based on the table schema below, question, sql query, and sql response, explain the sql query step by step:
+    {schema}
+    Question: {question}
+    SQL Query: {query}
+    SQL Response: {response}"""
+
+
+    prompt_response = ChatPromptTemplate.from_template(template)
+
+
+    text_response = (
+        RunnablePassthrough.assign(schema=get_schema)
+        | prompt_response
+        | model
+    )
+
+    # execute the model 
+    return   text_response.invoke({"question": question,"query":sql_query,"response":sql_result})
 # sample to execute the model 
 question = "What are the top 3 best-selling artists from the database?"
 #example of using the model
@@ -195,3 +222,5 @@ sql= text2sql("gpt3","Chinook",question)
 result = execute_sql(sql,"Chinook")
 text = sqlresult2text("gpt3","Chinook",question,sql,result)
 print(text)
+explain=sql_explaination("gpt3","Chinook",question,sql,result)
+print(explain)
