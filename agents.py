@@ -346,3 +346,5 @@ while True:
         print("AI response:",sql_agent(question))
     else:
         print("AI response:",freechat_memory(memory,"gpt3",question))
+        
+        
