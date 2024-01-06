@@ -79,7 +79,7 @@ def handle_sql_explanation():
     sql_query = data['sql_query']
     sql_result = data['sql_result']
     response = sql_explaination(model_name, db_name, question, sql_query, sql_result)
-    return jsonify(response)
+    return jsonify(f"{response}"[9:-1])
 
 @app.route('/text2sql_memory', methods=['POST'])
 def handle_text2sql_memory():
