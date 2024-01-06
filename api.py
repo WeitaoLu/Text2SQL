@@ -51,7 +51,7 @@ def handle_sqlresult2text():
     sql_query = data['sql_query']
     sql_result = data['sql_result']
     response = sqlresult2text(model_name, db_name, question, sql_query, sql_result)
-    return jsonify(response)
+    return jsonify(f"{response}"[9:-1])
 
 @app.route('/text2sql_end2end', methods=['POST'])
 def handle_text2sql_end2end():
