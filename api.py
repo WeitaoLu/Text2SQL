@@ -60,7 +60,7 @@ def handle_text2sql_end2end():
     db_name = data['db_name']
     question = data['question']
     response = text2sql_end2end(model_name, db_name, question)
-    return jsonify(response)
+    return jsonify(f"{response}"[9:-1])
 
 @app.route('/sql_agent', methods=['POST'])
 def handle_sql_agent():
