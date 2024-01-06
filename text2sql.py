@@ -97,7 +97,7 @@ def execute_sql(query,db_name):
                 return result
             else:
                 return "No results found."
-        else: return 'Finished' #update actions return no result but "Finished"
+        else: return 'No write access to database file' #update actions return no result but "Finished"
     except Exception as e:
         error_message = str(e)
         print(SQL_FAIL_MESSAGE,error_message)
@@ -127,7 +127,7 @@ def sqlresult2text(model_name,db_name,question,sql_query,sql_result):
     )
 
     # execute the model 
-    return   text_response.invoke({"question": question,"query":sql_query,"response":sql_result})
+    return text_response.invoke({"question": question,"query":sql_query,"response":sql_result})
 
 
 def text2sql_end2end(model_name,db_name,question):
@@ -208,7 +208,6 @@ def sql_agent(question,db_name="Chinook"):
     return output
  
 
-
 def sql_explaination(model_name,db_name,question,sql_query,sql_result):
     # Using Closure desgin pattern to pass the db to the model
     model,db = init(model_name,db_name)
@@ -233,7 +232,7 @@ def sql_explaination(model_name,db_name,question,sql_query,sql_result):
     )
 
     # execute the model 
-    return   text_response.invoke({"question": question,"query":sql_query,"response":sql_result})
+    return text_response.invoke({"question": question,"query":sql_query,"response":sql_result})
 
 def text2sql_memory(memory,model_name,db_name,question):
     model,db = init(model_name,db_name)
