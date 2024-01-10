@@ -34,3 +34,13 @@ comment the examples in text2sql.py and run python text2sql.py
 
 test apis:
 run python api.py and test using Postman.
+
+### Update 
+Deployed demo at 
+https://smartquery-e1951e951dab.herokuapp.com/chat
+(may not be vaild because the API key may be expired.)
+Thanks Muyin!
+Try these conversations using Chinook.
+@ means step by step. #means detailed explaination. Others means freechat.
+
+1.hi,introduce yourself  2. @I want to query the table names of my schema, can you write a query and run that sql for me? 3.@excellent, now I want to know the top 4 best-selling artists.  4.  can you explain the join logic in this query? I'm a little confused  5. #Hi agent, help me for the question:Write a SQL query to retrieve the names of the top 3 customers who have made the highest total purchases.
