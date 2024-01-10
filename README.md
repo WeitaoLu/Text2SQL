@@ -1,5 +1,5 @@
 # Text2SQL
-![](https://github.com/WeitaoLu/SoftwareEngineeringProject/blob/main/preview/pcfront.png)
+![](https://github.com/WeitaoLu/Text2SQL/blob/main/example/appexample.png)
 ## Tool Overview
 
 Text2SQL is an innovative tool developed on langchain for text to sql problems. 
